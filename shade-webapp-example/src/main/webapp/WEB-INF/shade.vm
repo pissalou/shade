@@ -1,0 +1,174 @@
+##
+## Extension of spring.vm
+## $springMacroRequestContext is an instance of org.springframework.web.servlet.support.RequestContext
+## author pma
+##
+#macro (shadeMenu $attributes)
+    <ul $attributes>
+    #foreach($entityClass in $dbTool.getEntityClassList()) ## TODO: implement common denominator and tree structure
+        #set($entityName = $entityClass.simpleName.toLowerCase())
+        <li><a href="/$entityName/">${entityName}Overview</a></li>
+    #end
+    </ul>
+#end
+
+#macro (shadeTable $path)
+    #set ($items = $springMacroRequestContext.getModel().get($path) )
+    #if($items.size() >0)
+        #set($firstItem = $items.get(0))
+        #set($fields = $reflectionTool.getFields($firstItem))
+        <table>
+            <thead>
+                <tr>
+                    #foreach($field in $fields)
+                    <th>$field.name</th>
+                    #end
+                </tr>
+            </thead>
+            <tbody>
+            #foreach($item in $items)
+                <tr id="$item.id">
+                    #foreach($field in $fields)
+                    <td>$!reflectionTool.getFieldValue($field, $item)</td>
+                    #end
+                </tr>
+            #end
+            </tbody>
+        </table>
+    #else
+        <p>No element in the list</p>
+    #end
+#end
+
+#macro (shadeForm $path)
+    #springBind($path)
+    #set ($item = $springMacroRequestContext.getModel().get($path) )
+    #set ($clazz = $item.class )
+    #set($fields = $reflectionTool.getFields($item))
+    <form name="$clazz.simpleName.toLowerCase()" action="#if($item.persistent)edit#{else}create#end" method="post">
+        #if($item.id)<input type="hidden" name="id" value="$!item.id.id" />#end
+        #foreach($field in $fields)
+##            <label>#springMessage("$path.$field.name")</label>  TODO: define a RecursiveNonFailingMessageSource
+            <label>$field.name</label>
+            #springBind("$path.$field.name")
+            <input type="text" id="${status.expression}" name="${status.expression}" value="$!status.value"
+                    #if($item.persistent && $reflectionTool.isReadOnly($field))readonly="readonly"#end />
+##            <input name="$field.name" value="#if($item.persistent)$!reflectionTool.getFieldValue($field, $item)#end"
+##                   #if($item.persistent && $reflectionTool.isReadOnly($field))readonly="readonly"#end
+##                    />
+            #springShowErrors('<br/>' 'error')
+            #end
+        <input type="submit" value="Submit" />
+    </form>
+#end
+
+#macro ( springHasBindErrors $path)
+    #set ($errors = $springMacroRequestContext.getErrors($path).allErrors)
+    #if ($errors && $errors.size() > 0)
+    <span class="hasFormValidationError"></span>
+    <script type="text/javascript">
+        function showValidationErrors() {
+        #foreach ($error in $errors)
+            toggleValidationError(jQuery('*[name=${error.field}]'), false, '#springMessage($error)');
+        #end
+        }
+
+        jQuery(document).ready(function() {
+            showValidationErrors();
+        });
+    </script>
+    #end
+#end
+
+#macro( springFormSingleSelectAdditionalEmptyOption $path $options $attributes )
+    #springBind($path)
+    #if($options.size() > 0)
+        <select id="${status.expression}" name="${status.expression}" ${attributes}>
+            <option #if(!$status.value)selected="selected"#end value=""></option>
+            #foreach($option in $options.keySet())
+                <option value="${option}" #if("$!status.value" == "$option")selected="selected"#end>${options.get($option)}</option>
+            #end
+        </select>
+    #else
+    <select id="${status.expression}" name="${status.expression}" ${attributes} />
+        <script type="text/javascript">
+            jQuery(document).ready(function() {
+                toggleValidationError(jQuery('select[name=$status.expression]'), false, 'Ingen treff');
+            });
+        </script>
+    #end
+#end
+
+## IMPORTANT: this macro solves the problem springFormMultiSelect has with binding List of type other than String.
+#macro( springFormMultiSelectAdditionalEmptyOption $path $options $attributes )
+    #springBind($path)
+    #if($options.size() > 0)
+        <select multiple="multiple" id="${status.expression}" name="${status.expression}" ${attributes}>
+            <option #if(! $status.value)selected="selected"#end value=""></option>
+            #foreach($option in $options.keySet())
+                <option value="${option}" #foreach($item in $status.actualValue)#if($item == $option)selected="selected"#end#end>${options.get($option)}</option>
+            #end
+        </select>
+    #else
+        <select id="${status.expression}" name="${status.expression}" ${attributes} />
+        <script type="text/javascript">
+            jQuery(document).ready(function() {
+                toggleValidationError(jQuery('select[name=$status.expression]'), false, 'Ingen treff');
+            });
+        </script>
+    #end
+#end
+
+#macro ( springClientFormValidation $path )
+#set ($form = $springMacroRequestContext.getModel().get($path) )
+<script type="text/javascript">
+    function toggleCallbackValidationError(input, callback, errorMsg) {
+        var isSuccess = callback.call();
+        toggleValidationError(input, isSuccess, errorMsg);
+        return isSuccess;
+    }
+
+    function toggleNumberValidationError(input) {
+        return toggleCallbackValidationError(input, function() { return jQuery.isNumeric(input.val()) }, "#springMessage('NotANumber')");
+    }
+
+    function toggleRequiredValidationError(input) {
+        return toggleCallbackValidationError(input, function() { return input.val() != '' }, "#springMessage('NotNull')");
+    }
+
+    function validateInput(input) {
+        ##  Do only if the target is another form element
+        if (input.attr('readonly') != 'readonly') {
+            var isRequired = input.hasClass('required');
+            var isNumber = input.hasClass('number');
+            if (isRequired && !toggleRequiredValidationError(input))
+                return false;
+            if (isNumber && !toggleNumberValidationError(input))
+                return false;
+        }
+        return true;
+    }
+
+    function validateForm(source) {
+        if (source == undefined)
+            source = jQuery(document);
+        #foreach ($field in $reflectionTool.getFields($form))
+            #set ($isRequired = $reflectionTool.isRequired($field))
+            #set ($isNumber = $reflectionTool.isNumber($field))
+            source.find('form *[name="$field.name"]').each(function() {
+                var input = jQuery(this);
+                #if ($isRequired)input.addClass('required'); input.prev('label').addClass('required');#end
+                #if ($isNumber)input.addClass('number');#end
+                input.blur(function(event) {
+##                    do only if the target is another form element
+                      return validateInput(input);
+                });
+            });
+        #end
+    }
+
+    jQuery(document).ready(function() {
+        validateForm(jQuery(this));
+    });
+</script>
+#end

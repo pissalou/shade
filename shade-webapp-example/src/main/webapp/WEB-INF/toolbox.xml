@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (C) 2013 Pascal Mazars
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<toolbox>
+    <!--<tool>-->
+        <!--<key>userRoleTool</key>-->
+        <!--<scope>application</scope>-->
+        <!--<class>no.decisive.tp.web.velocity.tools.UserRoleTool</class>-->
+    <!--</tool>-->
+    <!--<tool>-->
+        <!--<key>hibernateTool</key>-->
+        <!--<scope>application</scope>-->
+        <!--<class>no.decisive.tp.web.velocity.tools.HibernateVelocityTool</class>-->
+    <!--</tool>-->
+    <!--<tool>-->
+        <!--<key>enumTool</key>-->
+        <!--<scope>application</scope>-->
+        <!--<class>no.decisive.tp.web.velocity.tools.EnumVelocityTool</class>-->
+    <!--</tool>-->
+    <!--<tool>-->
+        <!--<key>jodaTool</key>-->
+        <!--<scope>application</scope>-->
+        <!--<class>no.decisive.tp.web.velocity.tools.JodaVelocityTool</class>-->
+    <!--</tool>-->
+    <tool>
+        <key>reflectionTool</key>
+        <scope>application</scope>
+        <class>app.web.velocity.ReflectionVelocityTool</class>
+    </tool>
+    <tool>
+        <key>dbTool</key>
+        <scope>application</scope>
+        <class>app.core.Db</class>
+    </tool>
+    <tool>
+        <key>numberTool</key>
+        <scope>application</scope>
+        <class>org.apache.velocity.tools.generic.NumberTool</class>
+    </tool>
+    <data>
+        <key>velocity.tools.version</key>
+        <value>1.3</value>
+    </data>
+</toolbox>

@@ -1,0 +1,2 @@
+#springHasBindErrors('person')
+#shadeForm('person')

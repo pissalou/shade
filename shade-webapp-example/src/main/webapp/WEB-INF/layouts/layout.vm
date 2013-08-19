@@ -1,0 +1,27 @@
+<html>
+  <head>
+      <title>Application homepage - ${mode} MODE</title>
+      <script src="jquery.js"></script>
+  </head>
+
+  <body>
+    This is not the current layout!!!
+    <ul id="main_menu">
+        <!--<li><a href="#" onclick="confirm('Do you concur?'); return false;">Confirmation</a></li>-->
+        <!--<li><a href="#" onclick="alert('This is an alert!'); return false;">Alert</a></li>-->
+        <!--<li><a href="#" onclick="return false;">Does nothing</a></li>-->
+        <!--<li><a href="#" onclick="jQuery('#hiddenLink').show();">Show hidden link</a></li>-->
+        <!--<li><a id="hiddenLink" style="display:none" href="user/delete">User delete</a></li>-->
+        <!--<li><a href="#" onclick="jQuery.ajax({url: 'select.html', context: document.body, success: function(data) {$('#ajaxContentGoesHere').append(data)}}); return false;">Ajax call</a></li>-->
+        <!--<li><a href="interpreter">Groovy Interpreter</a></li>-->
+        <li><a href="users">User overview</a></li>
+        <li><a href="user/new">User new</a></li>
+        <li><a href="select2.html">User select</a></li>
+    </ul>
+
+    $screen_content
+
+    <div id="ajaxContentGoesHere" />
+
+  </body>
+</html>
